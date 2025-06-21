@@ -23,7 +23,7 @@ import { checkUserAuth } from '../../slices/authSlice';
 function App() {
   const location = useLocation();
   const navigate = useNavigate();
-  const background = location.state && location.state.background;
+  const background = location.state?.backgroundLocation;
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(fetchIngredients());
@@ -84,6 +84,32 @@ function App() {
           element={
             <ProtectedRoute>
               <ProfileOrders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/ingredients/:id'
+          element={
+            <Modal title='Детали ингредиента' onClose={handleCloseModal}>
+              <IngredientDetails />
+            </Modal>
+          }
+        />
+        <Route
+          path='/feed/:number'
+          element={
+            <Modal title='Детали заказа' onClose={handleCloseModal}>
+              <OrderInfo />
+            </Modal>
+          }
+        />
+        <Route
+          path='/profile/orders/:number'
+          element={
+            <ProtectedRoute>
+              <Modal title='Детали заказа' onClose={handleCloseModal}>
+                <OrderInfo />
+              </Modal>
             </ProtectedRoute>
           }
         />
