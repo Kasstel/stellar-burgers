@@ -1,3 +1,5 @@
+import selectors from 'cypress/support/selectors';
+
 describe('Конструктор бургера', () => {
   beforeEach(() => {
     cy.intercept('GET', '**/api/ingredients', {
@@ -9,14 +11,14 @@ describe('Конструктор бургера', () => {
 
   it('добавляет ингредиент в конструктор', () => {
     // Найти первую карточку ингредиента
-    cy.get('[data-testid="ingredient-card"]')
+    cy.get(selectors.ingredientCard)
       .first()
-      .within(() => {
-        // Кликнуть по кнопке "Добавить"
+      .within(($card) => {
+        const name = $card.find(selectors.ingredientName).text();
         cy.contains('Добавить').click();
+
+        cy.get(selectors.constructorItem).should('have.text', name);
       });
-    // Проверить, что элемент появился в конструкторе
-    cy.get('[data-testid="constructor-item"]').should('exist');
   });
 
   it('добавляет начинку в конструктор', () => {
@@ -27,7 +29,7 @@ describe('Конструктор бургера', () => {
       });
     cy.get('[data-testid="constructor-item"]').should('exist');
   });
-  
+
   it('добавляет соус в конструктор', () => {
     cy.get('[data-testid="ingredient-card"][data-type="sauce"]')
       .first()
