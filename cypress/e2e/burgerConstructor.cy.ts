@@ -5,37 +5,49 @@ describe('Конструктор бургера', () => {
     cy.intercept('GET', '**/api/ingredients', {
       fixture: 'ingredients.json'
     }).as('getIngredients');
-    cy.visit('http://localhost:4000/');
+    cy.visit('/');
     cy.wait('@getIngredients');
   });
 
   it('добавляет ингредиент в конструктор', () => {
-    // Найти первую карточку ингредиента
     cy.get(selectors.ingredientCard)
       .first()
-      .within(($card) => {
-        const name = $card.find(selectors.ingredientName).text();
-        cy.contains('Добавить').click();
+      .find(selectors.ingredientName)
+      .invoke('text')
+      .as('name');
 
-        cy.get(selectors.constructorItem).should('have.text', name);
-      });
+    cy.get(selectors.ingredientCard).first().contains(`${selectors.addButton}`).click();
+
+    cy.get('@name').then((name) => {
+      cy.get(selectors.constructorItem).should('contain.text', name);
+    });
   });
 
   it('добавляет начинку в конструктор', () => {
-    cy.get('[data-testid="ingredient-card"][data-type="main"]')
+    cy.get(`${selectors.ingredientCard}${selectors.mainCard}`)
       .first()
-      .within(() => {
-        cy.contains('Добавить').click();
-      });
-    cy.get('[data-testid="constructor-item"]').should('exist');
+      .find(selectors.ingredientName)
+      .invoke('text')
+      .as('name');
+
+    cy.get(`${selectors.ingredientCard}${selectors.mainCard}`).first().contains(`${selectors.addButton}`).click();
+
+    cy.get('@name').then((name) => {
+      cy.get(selectors.constructorItem).should('contain.text', name);
+    });
   });
 
   it('добавляет соус в конструктор', () => {
-    cy.get('[data-testid="ingredient-card"][data-type="sauce"]')
+    cy.get(`${selectors.ingredientCard}${selectors.sauceCard}`)
       .first()
-      .within(() => {
-        cy.contains('Добавить').click();
-      });
-    cy.get('[data-testid="constructor-item"]').should('exist');
+      .find(selectors.ingredientName)
+      .invoke('text')
+      .as('name');
+
+    cy.get(`${selectors.ingredientCard}${selectors.sauceCard}`).first().contains(`${selectors.addButton}`).click();
+
+    cy.get('@name').then((name) => {
+      cy.get(selectors.constructorItem).should('contain.text', name);
+    });
   });
 });

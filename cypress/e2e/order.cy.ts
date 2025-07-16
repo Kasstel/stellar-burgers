@@ -1,7 +1,7 @@
+import selectors from '../support/selectors';
+
 describe('тест заказа', () => {
   beforeEach(() => {
-
-    // Настраиваем интерсепторы ДО посещения страницы
     cy.intercept('GET', '**/auth/user', {
       fixture: 'users.json'
     }).as('getUser');
@@ -14,60 +14,55 @@ describe('тест заказа', () => {
       fixture: 'ingredients.json'
     }).as('getIngredients');
 
-    window.localStorage.setItem('refreshToken', JSON.stringify('testRefreshToken'))
-    cy.setCookie('accessToken', 'testAccsessToken')
+    window.localStorage.setItem(
+      'refreshToken',
+      JSON.stringify('testRefreshToken')
+    );
+    cy.setCookie('accessToken', 'testAccsessToken');
 
-    cy.visit('http://localhost:4000/');
-
+    cy.visit('/');
 
     cy.wait('@getIngredients');
 
     cy.wait('@getUser');
   });
 
-  afterEach(()=>{
+  afterEach(() => {
     cy.clearLocalStorage();
     cy.clearAllCookies();
-  })
+  });
 
   it('Собирает бургер и оформляет заказ', () => {
-  
-    cy.get('[data-type="bun"]')
+    cy.get(`${selectors.bunCard}`)
       .first()
       .within(() => {
-        cy.contains('Добавить').click();
+        cy.contains(`${selectors.addButton}`).click();
       });
 
-
-    cy.get('[data-type="main"]')
+    cy.get(`${selectors.mainCard}`)
       .eq(0)
       .within(() => {
-        cy.contains('Добавить').click();
+        cy.contains(`${selectors.addButton}`).click();
       });
 
-    cy.get('[data-type="sauce"]')
+    cy.get(`${selectors.sauceCard}`)
       .eq(0)
       .within(() => {
-        cy.contains('Добавить').click();
+        cy.contains(`${selectors.addButton}`).click();
       });
 
-
-    cy.get('[data-testid="order-button"]').contains('Оформить заказ').click();
+    cy.get(`${selectors.orderButton}`).contains('Оформить заказ').click();
 
     cy.wait('@orderPost');
 
-    
-    cy.get('[data-testid="modal"]').should('exist');
-    
+    cy.get(`${selectors.modal}`).should('exist');
+
     cy.contains('10101').should('exist');
 
+    cy.get(`${selectors.modalOverlay}`).click({ force: true });
 
-    cy.get('[data-testid="modal-overlay"]').click({ force: true });
+    cy.get(`${selectors.modal}`).should('not.exist');
 
-
-    cy.get('[data-testid="modal"]').should('not.exist');
-
-
-    cy.get('[data-testid="constructor-item"]').should('not.exist');
+    cy.get(`${selectors.constructorItem}`).should('not.exist');
   });
 });
