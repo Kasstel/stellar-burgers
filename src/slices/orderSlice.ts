@@ -6,6 +6,8 @@ import {
   getFeedsApi
 } from '../utils/burger-api';
 import { TOrder } from '../utils/types';
+import { clearConstructor } from './burgerConstructorSlice';
+import type { AppDispatch } from '../services/store';
 
 interface OrdersState {
   orders: TOrder[];
@@ -57,10 +59,14 @@ export const fetchOrdersAsync = createAsyncThunk<
 export const orderBurgerAsync = createAsyncThunk<
   { order: TOrder; name: string },
   string[],
-  { rejectValue: string }
->('orders/create', async (ingredients, { rejectWithValue }) => {
+  { rejectValue: string; dispatch: AppDispatch }
+>('orders/create', async (ingredients, { rejectWithValue, dispatch }) => {
   try {
-    return await orderBurgerApi(ingredients);
+    const response = await orderBurgerApi(ingredients);
+
+    dispatch(clearConstructor());
+
+    return response;
   } catch (err: any) {
     return rejectWithValue(err.message || 'Ошибка создания заказа');
   }
